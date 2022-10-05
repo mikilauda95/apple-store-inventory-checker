@@ -15,9 +15,13 @@ const COUNTRIES = {
     "storePath": "/de",
     "skuCode": "D",
   },
+  //UK: {
+    //"storePath": "/uk",
+    //"skuCode": "B",
+  //},
   UK: {
     "storePath": "/uk",
-    "skuCode": "B",
+    "skuCode": "D",
   },
   KR: { // South Korean Apple Stores do not appear to support in-store pickup
     "storePath": "/kr",
