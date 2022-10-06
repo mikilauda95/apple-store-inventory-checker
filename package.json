@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "array.prototype.flatmap": "^1.2.5",
+    "axios": "^1.1.0",
     "node-notifier": "^10.0.1",
     "request": "^2.88.2",
     "string.prototype.replaceall": "^1.0.6"

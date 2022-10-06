@@ -2,6 +2,9 @@ const request = require("request");
 const notifier = require("node-notifier");
 const flatMap = require('array.prototype.flatmap');
 const replaceAll = require("string.prototype.replaceall");
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const CHAT_ID = process.env.CHAT_ID;
+const axios = require("axios").default;
 
 flatMap.shim();
 replaceAll.shim();
@@ -9,8 +12,15 @@ replaceAll.shim();
 const { COUNTRIES } = require("./constants");
 const args = process.argv.slice(2);
 
-let skusForCountry = (countrySkuCode) => {
+async function sendMessage(message) {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`
+    const params = { chat_id: CHAT_ID, text: message }
+    await axios.get(url, { params: params })
+}
+
+let skusForCountry = (countrySkuCodeMacbook, countrySkuCode) => {
   return {
+    //[`MLY33${countrySkuCodeMacbook}/A`]: `MACBOOK is present`,
     [`MQ0G3Z${countrySkuCode}/A`]: `iPhone 14 Pro 128GB Deep Purple`,
     [`MQ1F3Z${countrySkuCode}/A`]: `iPhone 14 Pro 256GB Deep Purple`,
     [`MQ293Z${countrySkuCode}/A`]: `iPhone 14 Pro 512GB Deep Purple`,
@@ -45,7 +55,7 @@ if (args.length > 0) {
 const countryConfig = COUNTRIES[country];
 
 let storePath = countryConfig["storePath"];
-let skuList = skusForCountry(countryConfig["skuCode"]);
+let skuList = skusForCountry(countryConfig["skuCodeMacbook"], countryConfig["skuCode"]);
 let favorites = favouritesForCountry(countryConfig["skuCode"]);
 
 const query =
@@ -65,7 +75,12 @@ request(options, function (error, response) {
   const storesArray = body.body.content.pickupMessage.stores;
   let skuCounter = {};
   let hasStoreSearchError = false;
+  payload = "";
 
+  payload+='Inventory';
+  payload+= "\n";
+  payload+='---------';
+  payload += "\n";
   console.log('Inventory');
   console.log('---------');
   const statusArray = storesArray
@@ -85,6 +100,8 @@ request(options, function (error, response) {
 
           if (product.pickupDisplay === "available") {
             console.log(`${value} in stock at ${store.storeName}`);
+            payload+=`${value} in stock at ${store.storeName}`;
+            payload += "\n";
             let count = skuCounter[key] ? skuCounter[key] : 0;
             count += 1;
             skuCounter[key] = count;
@@ -114,14 +131,15 @@ request(options, function (error, response) {
   let notificationMessage;
 
   if (inventory) {
-    notificationMessage = `${hasFavourite ? "FOUND FAVOURITE! " : ""
-      }Some models found: ${inventory}`;
+    notificationMessage = `${hasFavourite ? "FOUND FAVOURITE! " : "" }Some models found: ${inventory}`;
+    sendMessage(`Some models found `);
+    sendMessage(payload);
   } else {
     notificationMessage = "No models found.";
     console.log(statusArray);
+    //sendMessage(JSON.stringify(statusArray));
     console.log(notificationMessage);
   }
-
   const message = hasError ? "Possible error?" : notificationMessage;
   notifier.notify({
     title: "IPhone 14 Found!",
