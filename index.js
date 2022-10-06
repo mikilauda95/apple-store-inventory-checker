@@ -9,25 +9,6 @@ replaceAll.shim();
 const { COUNTRIES } = require("./constants");
 const args = process.argv.slice(2);
 
-//let skusForCountry = (countrySkuCode) => {
-  //return {
-    //[`MKGR3${countrySkuCode}/A`]: `14" M1 Pro 8 Core CPU 14 Core GPU 512GB Silver`,
-    //[`MKGP3${countrySkuCode}/A`]: '14" M1 Pro 8 Core CPU 14 Core GPU 512GB Space Grey',
-    //[`MKGT3${countrySkuCode}/A`]: '14" M1 Pro 10 Core CPU 16 Core GPU 1TB Silver',
-    //[`MKGQ3${countrySkuCode}/A`]: '14" M1 Pro 10 Core CPU 16 Core GPU 1TB Space Grey',
-    //[`MMQX3${countrySkuCode}/A`]: '14" M1 Max 10 Core CPU 32 Core GPU 2TB Silver, Ultimate',
-    //[`MKH53${countrySkuCode}/A`]: '14" M1 Max 10 Core CPU 32 Core GPU 2TB Space Grey, Ultimate',
-    //[`MK1H3${countrySkuCode}/A`]: '16" M1 Max 10 Core CPU 32 Core GPU 1TB Silver',
-    //[`MK1A3${countrySkuCode}/A`]: '16" M1 Max 10 Core CPU 32 Core GPU 1TB Space Grey',
-    //[`MMQW3${countrySkuCode}/A`]: '16" M1 Max 10 Core CPU 32 Core GPU 4TB Silver, Ultimate',
-    //[`MK233${countrySkuCode}/A`]: '16" M1 Max 10 Core CPU 32 Core GPU 4TB Space Grey, Ultimate',
-    //[`MK1F3${countrySkuCode}/A`]: '16" M1 Pro 10 Core CPU 16 Core GPU 1TB Silver',
-    //[`MK193${countrySkuCode}/A`]: '16" M1 Pro 10 Core CPU 16 Core GPU 1TB Space Grey',
-    //[`MK1E3${countrySkuCode}/A`]: '16" M1 Pro 10 Core CPU 16 Core GPU 512GB Silver',
-    //[`MK183${countrySkuCode}/A`]: '16" M1 Pro 10 Core CPU 16 Core GPU 512GB Space Grey',
-  //}
-//}
-
 let skusForCountry = (countrySkuCode) => {
   return {
     [`MQ1F3Z${countrySkuCode}/A`]: `iPhone 14 Pro 256GB Deep Purple`,
@@ -38,10 +19,7 @@ let skusForCountry = (countrySkuCode) => {
 
 let favouritesForCountry = (countrySkuCode) => {
   return [
-    `MMQX3${countrySkuCode}/A`,
-    `MKH53${countrySkuCode}/A`,
-    `MK1A3${countrySkuCode}/A`,
-    `MK1H3${countrySkuCode}/A`,
+    `MQ1F3Z${countrySkuCode}/A`,
   ]
 }
 
@@ -75,7 +53,6 @@ let options = {
   method: "GET",
   url: `https://www.apple.com${storePath}/shop/fulfillment-messages?` + query,
 };
-console.log(options.url);
 
 request(options, function (error, response) {
   if (error) throw new Error(error);
@@ -96,11 +73,6 @@ request(options, function (error, response) {
 
       for (const [key, value] of Object.entries(skuList)) {
         const product = store.partsAvailability[key];
-
-        //hasStoreSearchError = product.storeSearchEnabled !== true;
-        //if(product.storeSearchEnabled !== true){
-          //console.log("debug 1", store)
-        //}
 
         if (key === control && hasStoreSearchError !== true) {
           hasStoreSearchError = product.pickupDisplay !== "available";
@@ -132,13 +104,13 @@ request(options, function (error, response) {
   console.log('\nInventory counts');
   console.log('----------------');
   console.log(inventory.replaceAll(" | ", "\n"));
-  let hasUltimate = Object.keys(skuCounter).some(
+  let hasFavourite = Object.keys(skuCounter).some(
     (r) => favorites.indexOf(r) >= 0
   );
   let notificationMessage;
 
   if (inventory) {
-    notificationMessage = `${hasUltimate ? "FOUND ULTIMATE! " : ""
+    notificationMessage = `${hasFavourite ? "FOUND FAVOURITE! " : ""
       }Some models found: ${inventory}`;
   } else {
     notificationMessage = "No models found.";
@@ -148,9 +120,9 @@ request(options, function (error, response) {
 
   const message = hasError ? "Possible error?" : notificationMessage;
   notifier.notify({
-    title: "MacBook Pro Availability",
+    title: "IPhone 14 Found!",
     message: message,
-    sound: hasError || inventory,
+    sond: hasError || inventory,
     timeout: false,
   });
 
